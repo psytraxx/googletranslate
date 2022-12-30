@@ -9,12 +9,14 @@ import (
 )
 
 var sourceLang string
-var targetLang string
+var targetLanguage string
 var sourceText string
+
+var wg sync.WaitGroup
 
 func init() {
 	flag.StringVar(&sourceLang, "s", "auto", "source language[en]")
-	flag.StringVar(&targetLang, "t", "de", "target language[de]")
+	flag.StringVar(&targetLanguage, "t", "de", "target language[de] (or comma separated)")
 	flag.StringVar(&sourceText, "st", "", "text to translate")
 }
 func main() {
@@ -25,22 +27,21 @@ func main() {
 		flag.PrintDefaults()
 	}
 
-	reqBody := &cli.RequestBody{
-		SourceLang: sourceLang,
-		SourceText: sourceText,
-		TargetLang: targetLang,
+	targetLanguages := strings.Split(targetLanguage, ",")
+
+	strChan := make(chan string, len(targetLanguages))
+	defer close(strChan)
+	for _, targetLang := range targetLanguages {
+
+		wg.Add(1)
+		reqBody := &cli.RequestBody{
+			SourceLang: sourceLang,
+			SourceText: sourceText,
+			TargetLang: targetLang,
+		}
+		go cli.RequestTranslate(reqBody, strChan, &wg)
+		processedStr := strings.ReplaceAll(<-strChan, " + ", " ")
+		fmt.Printf("%s\n", processedStr)
 	}
-
-	strChan := make(chan string)
-
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-
-	go cli.RequestTranslate(reqBody, strChan, wg)
-
-	processedStr := strings.ReplaceAll(<-strChan, " + ", " ")
-
-	fmt.Printf("%s\n", processedStr)
-	close(strChan)
 	wg.Wait()
 }

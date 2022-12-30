@@ -1,11 +1,14 @@
 package cli
 
 import (
+	"fmt"
 	"github.com/tidwall/gjson"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type RequestBody struct {
@@ -18,9 +21,11 @@ const translateUrl = "https://translate.googleapis.com/translate_a/single"
 
 func RequestTranslate(body *RequestBody, str chan string, wg *sync.WaitGroup) {
 	client := &http.Client{}
-
+	fmt.Printf("Starting translation of %s\n", body.TargetLang)
 	req, err := http.NewRequest("GET", translateUrl, nil)
-
+	rand.Seed(time.Now().UnixNano())
+	n := rand.Intn(100)
+	time.Sleep(time.Duration(n) * time.Millisecond)
 	query := req.URL.Query()
 	query.Add("client", "dict-chrome-ex")
 
@@ -63,6 +68,7 @@ func RequestTranslate(body *RequestBody, str chan string, wg *sync.WaitGroup) {
 
 	translated := gjson.GetBytes(json, "sentences.#.trans")
 	textArray := translated.Array()
+	fmt.Printf("Finish translation of %s\n", body.TargetLang)
 	str <- textArray[0].Str
 	wg.Done()
 }
