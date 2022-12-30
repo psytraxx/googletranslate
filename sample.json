@@ -1,0 +1,38 @@
+{
+  "sentences":[
+    {
+      "trans":"Hallo, mein Name ist Eric",
+      "orig":"Hello my name is Eric",
+      "backend":3,
+      "model_specification":[
+        {
+          "label":"offline"
+        }
+      ],
+      "translation_engine_debug_info":[
+        {
+          "model_tracking":{
+            "checkpoint_md5":"09a84eced1cc41a11c5a2cc049bf67c2",
+            "launch_doc":"efficient_models_2022q2.md"
+          }
+        }
+      ]
+    }
+  ],
+  "src":"en",
+  "confidence":1.0,
+  "spell":{
+
+  },
+  "ld_result":{
+    "srclangs":[
+      "en"
+    ],
+    "srclangs_confidences":[
+      1.0
+    ],
+    "extended_srclangs":[
+      "en"
+    ]
+  }
+}
